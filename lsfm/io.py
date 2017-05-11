@@ -38,7 +38,7 @@ def import_mesh(path):
         mesh = import_pickle(path)
     else:
         mesh = m3io.import_mesh(path)
-    if mesh.texture.pixels.dtype != np.float64:
+    if hasattr(mesh,"texture") and mesh.texture.pixels.dtype != np.float64:
         mesh.texture.pixels = normalize_pixels_range(mesh.texture.pixels)
     return mesh
 
