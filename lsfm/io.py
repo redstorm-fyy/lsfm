@@ -76,6 +76,8 @@ def export_settings(r, settings, overwrite=False):
 def path_shape_nicp(r, id_):
     return r / 'shape_nicp' / '{}.pkl'.format(id_)
 
+def path_shape_nicp_mesh(r,id_,extension):
+    return r / 'shape_nicp' / '{}{}'.format(id_,extension)
 
 def _load_shape_nicp_for_path(path):
     from .data import load_template  # circular import
@@ -88,8 +90,9 @@ def import_shape_nicp(r, id_):
     return _load_shape_nicp_for_path(path_shape_nicp(r, id_))
 
 
-def export_shape_nicp(r, id_, mesh):
+def export_shape_nicp(r, id_, mesh,extension='.ply'):
     export_pickle(mesh.as_vector(), path_shape_nicp(r, id_), overwrite=True)
+    m3io.export_mesh(mesh,path_shape_nicp_mesh(r,id_,extension=extension),extension=extension,overwrite=True)
 
 
 def paths_shape_nicp(r):
