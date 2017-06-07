@@ -30,7 +30,15 @@ def generate_template_from_basel_and_metadata(basel, meta):
 
 
 def save_template_from_basel(path):
+    if False:
+        save_customize_template_from_basel(path)
+        return
     basel = load_mean_from_basel(path)
     meta = load_basel_template_metadata()
     template = generate_template_from_basel_and_metadata(basel, meta)
     save_template(template, overwrite=True)
+
+def save_customize_template_from_basel(path):
+    import menpo3d.io as m3io
+    template = m3io.import_mesh(path)
+    save_template(template,overwrite=True)
