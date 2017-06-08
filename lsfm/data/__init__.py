@@ -11,7 +11,7 @@ DATA_DIR = Path(abspath(__file__)).parent
 # We define a template that we use for the landmarks
 LANDMARK_MASK = np.ones(68, dtype=np.bool)
 # Remove the jaw...
-LANDMARK_MASK[:18] = False
+LANDMARK_MASK[:17] = False
 # ...and the inner lips for robustness.
 LANDMARK_MASK[-8:] = False
 

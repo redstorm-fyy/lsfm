@@ -40,5 +40,7 @@ def save_template_from_basel(path):
 
 def save_customize_template_from_basel(path):
     import menpo3d.io as m3io
+    import lsfm
     template = m3io.import_mesh(path)
+    lsfm.landmark.landmark_template(template,verbose=True)
     save_template(template,overwrite=True)

@@ -83,3 +83,47 @@ def landmark_mesh(mesh, img_shape=(320, 240), verbose=False):
     return_dict['landmarked_image'] = lm_img
 
     return return_dict
+
+
+from .data import prepare_template_reference_space
+from menpo.image.base import Image
+import numpy as np
+
+def landmark_template(mesh, img_shape=(320, 240), verbose=False):
+    fitter = load_balanced_frontal_face_fitter()
+    detector = load_dlib_frontal_face_detector()
+    camera = perspective_camera_for_template(img_shape)
+
+    # Pre-process - align the mesh roughly with the template
+    aligned_mesh = prepare_template_reference_space(mesh)
+
+    mesh_in_img = camera.apply(aligned_mesh)
+
+    bcs = rasterize_barycentric_coordinate_images(mesh_in_img, img_shape)
+    img = rasterize_mesh_from_barycentric_coordinate_images(mesh_in_img, *bcs)
+    shape_img = rasterize_shape_image_from_barycentric_coordinate_images(
+        mesh, *bcs)
+    # 2. Find the one bounding box in the rendered image
+    bboxes = detector(img)
+    if len(bboxes) != 1:
+        raise ValueError(
+            "Expected to find one face - found {}".format(len(bboxes)))
+    else:
+        if verbose:
+            print('Detected 1 face')
+    # 3. Fit from the bounding box
+    fr = fitter.fit_from_bb(img, bboxes[0])
+    if verbose:
+        print('AMM fitting successfully completed')
+    # 4. Sample the XYZ image to build back the landmarks
+    img_lms = fr.final_shape
+
+    # test to see if the landmark fell on the 3D surface or not
+    mesh.landmarks["ibug68"] = PointCloud(Image.sample(shape_img, img_lms).T)
+    mask = np.zeros(68, dtype=np.bool)
+    mask[30] = True
+    mesh.landmarks["nosetip"] = mesh.landmarks["ibug68"].lms.from_mask(mask)
+    # r=np.random.uniform(low=-2.,high=2.,size=3)
+    # points=mesh.landmarks["nosetip"].lms.points
+    # points=points*(1.+r/100)
+    # mesh.landmarks["nosetip"].lms.points=points
